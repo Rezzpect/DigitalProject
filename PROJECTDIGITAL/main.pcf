@@ -1,0 +1,15 @@
+//! **************************************************************************
+// Written by: Map P.20131013 on Wed Nov 08 18:48:03 2023
+//! **************************************************************************
+
+SCHEMATIC START;
+COMP "HSYNC" LOCATE = SITE "P11" LEVEL 1;
+COMP "RED" LOCATE = SITE "P16" LEVEL 1;
+COMP "P_LEFT" LOCATE = SITE "P47" LEVEL 1;
+COMP "GREEN" LOCATE = SITE "P21" LEVEL 1;
+COMP "BLUE" LOCATE = SITE "P23" LEVEL 1;
+COMP "P_RIGHT" LOCATE = SITE "P48" LEVEL 1;
+COMP "VSYNC" LOCATE = SITE "P14" LEVEL 1;
+COMP "CLOCK" LOCATE = SITE "P123" LEVEL 1;
+SCHEMATIC END;
+

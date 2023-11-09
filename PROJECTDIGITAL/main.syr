@@ -1,0 +1,492 @@
+Release 14.7 - xst P.20131013 (nt64)
+Copyright (c) 1995-2013 Xilinx, Inc.  All rights reserved.
+--> Parameter TMPDIR set to xst/projnav.tmp
+
+
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.30 secs
+ 
+--> Parameter xsthdpdir set to xst
+
+
+Total REAL time to Xst completion: 0.00 secs
+Total CPU time to Xst completion: 0.30 secs
+ 
+--> Reading design: main.prj
+
+TABLE OF CONTENTS
+  1) Synthesis Options Summary
+  2) HDL Parsing
+  3) HDL Elaboration
+  4) HDL Synthesis
+       4.1) HDL Synthesis Report
+  5) Advanced HDL Synthesis
+       5.1) Advanced HDL Synthesis Report
+  6) Low Level Synthesis
+  7) Partition Report
+  8) Design Summary
+       8.1) Primitive and Black Box Usage
+       8.2) Device utilization summary
+       8.3) Partition Resource Summary
+       8.4) Timing Report
+            8.4.1) Clock Information
+            8.4.2) Asynchronous Control Signals Information
+            8.4.3) Timing Summary
+            8.4.4) Timing Details
+            8.4.5) Cross Clock Domains Report
+
+
+=========================================================================
+*                      Synthesis Options Summary                        *
+=========================================================================
+---- Source Parameters
+Input File Name                    : "main.prj"
+Ignore Synthesis Constraint File   : NO
+
+---- Target Parameters
+Output File Name                   : "main"
+Output Format                      : NGC
+Target Device                      : xc6slx9-3-tqg144
+
+---- Source Options
+Top Module Name                    : main
+Automatic FSM Extraction           : YES
+FSM Encoding Algorithm             : Auto
+Safe Implementation                : No
+FSM Style                          : LUT
+RAM Extraction                     : Yes
+RAM Style                          : Auto
+ROM Extraction                     : Yes
+Shift Register Extraction          : YES
+ROM Style                          : Auto
+Resource Sharing                   : YES
+Asynchronous To Synchronous        : NO
+Shift Register Minimum Size        : 2
+Use DSP Block                      : Auto
+Automatic Register Balancing       : No
+
+---- Target Options
+LUT Combining                      : Auto
+Reduce Control Sets                : Auto
+Add IO Buffers                     : YES
+Global Maximum Fanout              : 100000
+Add Generic Clock Buffer(BUFG)     : 16
+Register Duplication               : YES
+Optimize Instantiated Primitives   : NO
+Use Clock Enable                   : Auto
+Use Synchronous Set                : Auto
+Use Synchronous Reset              : Auto
+Pack IO Registers into IOBs        : Auto
+Equivalent register Removal        : YES
+
+---- General Options
+Optimization Goal                  : Speed
+Optimization Effort                : 1
+Power Reduction                    : NO
+Keep Hierarchy                     : No
+Netlist Hierarchy                  : As_Optimized
+RTL Output                         : Yes
+Global Optimization                : AllClockNets
+Read Cores                         : YES
+Write Timing Constraints           : NO
+Cross Clock Analysis               : NO
+Hierarchy Separator                : /
+Bus Delimiter                      : <>
+Case Specifier                     : Maintain
+Slice Utilization Ratio            : 100
+BRAM Utilization Ratio             : 100
+DSP48 Utilization Ratio            : 100
+Auto BRAM Packing                  : NO
+Slice Utilization Ratio Delta      : 5
+
+=========================================================================
+
+
+=========================================================================
+*                          HDL Parsing                                  *
+=========================================================================
+Parsing VHDL file "C:\DG\PROJECTDIGITAL\main.vhd" into library work
+Parsing entity <main>.
+Parsing architecture <Behavioral> of entity <main>.
+
+=========================================================================
+*                            HDL Elaboration                            *
+=========================================================================
+
+Elaborating entity <main> (architecture <Behavioral>) from library <work>.
+WARNING:HDLCompiler:634 - "C:\DG\PROJECTDIGITAL\main.vhd" Line 202: Net <ball_width[8]> does not have a driver.
+
+=========================================================================
+*                           HDL Synthesis                               *
+=========================================================================
+
+Synthesizing Unit <main>.
+    Related source file is "C:\DG\PROJECTDIGITAL\main.vhd".
+WARNING:Xst:647 - Input <P_LEFT> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:647 - Input <P_RIGHT> is never used. This port will be preserved and left unconnected if it belongs to a top-level block or it belongs to a sub-block and the hierarchy of this sub-block is preserved.
+WARNING:Xst:2935 - Signal 'ball_width', unconnected in block 'main', is tied to its initial value (000001000).
+WARNING:Xst:2935 - Signal 'ball_height', unconnected in block 'main', is tied to its initial value (000001000).
+    Register <RED> equivalent to <GREEN> has been removed
+    Register <BLUE> equivalent to <GREEN> has been removed
+    Found 1-bit register for signal <GREEN>.
+    Found 20-bit register for signal <game_delay>.
+    Found 10-bit register for signal <ball_x>.
+    Found 10-bit register for signal <ball_y>.
+    Found 5-bit register for signal <ball_vx>.
+    Found 5-bit register for signal <ball_vy>.
+    Found 1-bit register for signal <HSYNC>.
+    Found 1-bit register for signal <VSYNC>.
+    Found 10-bit register for signal <x>.
+    Found 10-bit register for signal <y>.
+    Found 12-bit subtractor for signal <GND_5_o_BUS_0004_sub_21_OUT> created at line 162.
+    Found 11-bit subtractor for signal <GND_5_o_ball_y[9]_sub_25_OUT> created at line 162.
+    Found 20-bit adder for signal <game_delay[19]_GND_5_o_add_0_OUT> created at line 220.
+    Found 10-bit adder for signal <ball_x[9]_ball_vx[4]_add_2_OUT> created at line 226.
+    Found 10-bit adder for signal <ball_y[9]_ball_vy[4]_add_3_OUT> created at line 227.
+    Found 11-bit adder for signal <n0129> created at line 162.
+    Found 25-bit adder for signal <n0132> created at line 162.
+    Found 10-bit adder for signal <x[9]_GND_5_o_add_34_OUT> created at line 253.
+    Found 10-bit adder for signal <y[9]_GND_5_o_add_36_OUT> created at line 256.
+    Found 5-bit subtractor for signal <GND_5_o_ball_vy[4]_sub_13_OUT<4:0>> created at line 235.
+    Found 5-bit subtractor for signal <GND_5_o_ball_vx[4]_sub_8_OUT<4:0>> created at line 231.
+    Found 12x12-bit multiplier for signal <GND_5_o_GND_5_o_MuLt_23_OUT> created at line 162.
+    Found 11x11-bit multiplier for signal <GND_5_o_GND_5_o_MuLt_26_OUT> created at line 162.
+    Found 8x8-bit multiplier for signal <ball_width[8]_ball_width[8]_MuLt_28_OUT> created at line 162.
+    Found 10-bit comparator lessequal for signal <n0004> created at line 230
+    Found 10-bit comparator lessequal for signal <n0007> created at line 230
+    Found 10-bit comparator lessequal for signal <n0012> created at line 234
+    Found 10-bit comparator lessequal for signal <n0015> created at line 234
+    Found 25-bit comparator lessequal for signal <n0035> created at line 162
+    Found 10-bit comparator greater for signal <GND_5_o_x[9]_LessThan_31_o> created at line 241
+    Found 10-bit comparator lessequal for signal <n0038> created at line 241
+    Found 10-bit comparator greater for signal <GND_5_o_y[9]_LessThan_33_o> created at line 247
+    Found 10-bit comparator lessequal for signal <n0043> created at line 247
+    Summary:
+	inferred   3 Multiplier(s).
+	inferred  11 Adder/Subtractor(s).
+	inferred  73 D-type flip-flop(s).
+	inferred   9 Comparator(s).
+	inferred   2 Multiplexer(s).
+Unit <main> synthesized.
+
+=========================================================================
+HDL Synthesis Report
+
+Macro Statistics
+# Multipliers                                          : 3
+ 11x11-bit multiplier                                  : 1
+ 12x12-bit multiplier                                  : 1
+ 8x8-bit multiplier                                    : 1
+# Adders/Subtractors                                   : 11
+ 10-bit adder                                          : 4
+ 11-bit adder                                          : 1
+ 11-bit subtractor                                     : 1
+ 12-bit subtractor                                     : 1
+ 20-bit adder                                          : 1
+ 25-bit adder                                          : 1
+ 5-bit subtractor                                      : 2
+# Registers                                            : 10
+ 1-bit register                                        : 3
+ 10-bit register                                       : 4
+ 20-bit register                                       : 1
+ 5-bit register                                        : 2
+# Comparators                                          : 9
+ 10-bit comparator greater                             : 2
+ 10-bit comparator lessequal                           : 6
+ 25-bit comparator lessequal                           : 1
+# Multiplexers                                         : 2
+ 10-bit 2-to-1 multiplexer                             : 2
+# Xors                                                 : 3
+ 1-bit xor2                                            : 3
+
+=========================================================================
+
+=========================================================================
+*                       Advanced HDL Synthesis                          *
+=========================================================================
+
+
+Synthesizing (advanced) Unit <main>.
+The following registers are absorbed into counter <game_delay>: 1 register on signal <game_delay>.
+The following registers are absorbed into counter <x>: 1 register on signal <x>.
+The following registers are absorbed into counter <y>: 1 register on signal <y>.
+	Adder/Subtractor <Msub_GND_5_o_BUS_0004_sub_21_OUT> in block <main> and  <Mmult_GND_5_o_GND_5_o_MuLt_23_OUT> in block <main> are combined into a MULT with pre-adder <Mmult_GND_5_o_GND_5_o_MuLt_23_OUT1>.
+Unit <main> synthesized (advanced).
+
+=========================================================================
+Advanced HDL Synthesis Report
+
+Macro Statistics
+# MACs                                                 : 1
+ 12x12-to-24-bit Mult with pre-adder                   : 1
+# Multipliers                                          : 2
+ 11x11-bit multiplier                                  : 1
+ 4x4-bit multiplier                                    : 1
+# Adders/Subtractors                                   : 9
+ 10-bit adder                                          : 2
+ 11-bit adder                                          : 1
+ 11-bit subtractor                                     : 1
+ 12-bit subtractor                                     : 1
+ 20-bit adder                                          : 1
+ 25-bit adder                                          : 1
+ 5-bit subtractor                                      : 2
+# Counters                                             : 3
+ 10-bit up counter                                     : 2
+ 20-bit up counter                                     : 1
+# Registers                                            : 33
+ Flip-Flops                                            : 33
+# Comparators                                          : 9
+ 10-bit comparator greater                             : 2
+ 10-bit comparator lessequal                           : 6
+ 25-bit comparator lessequal                           : 1
+# Multiplexers                                         : 20
+ 1-bit 2-to-1 multiplexer                              : 20
+# Xors                                                 : 3
+ 1-bit xor2                                            : 3
+
+=========================================================================
+
+=========================================================================
+*                         Low Level Synthesis                           *
+=========================================================================
+WARNING:Xst:1293 - FF/Latch <ball_vx_0> has a constant value of 1 in block <main>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1896 - Due to other FF/Latch trimming, FF/Latch <ball_vy_0> has a constant value of 1 in block <main>. This FF/Latch will be trimmed during the optimization process.
+
+Optimizing unit <main> ...
+WARNING:Xst:1293 - FF/Latch <ball_y_9> has a constant value of 0 in block <main>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1896 - Due to other FF/Latch trimming, FF/Latch <ball_x_9> has a constant value of 0 in block <main>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1896 - Due to other FF/Latch trimming, FF/Latch <game_delay_17> has a constant value of 0 in block <main>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1896 - Due to other FF/Latch trimming, FF/Latch <game_delay_18> has a constant value of 0 in block <main>. This FF/Latch will be trimmed during the optimization process.
+WARNING:Xst:1896 - Due to other FF/Latch trimming, FF/Latch <game_delay_19> has a constant value of 0 in block <main>. This FF/Latch will be trimmed during the optimization process.
+INFO:Xst:2261 - The FF/Latch <ball_vx_1> in Unit <main> is equivalent to the following 3 FFs/Latches, which will be removed : <ball_vx_2> <ball_vx_3> <ball_vx_4> 
+INFO:Xst:2261 - The FF/Latch <ball_y_0> in Unit <main> is equivalent to the following FF/Latch, which will be removed : <ball_x_0> 
+INFO:Xst:2261 - The FF/Latch <ball_vy_1> in Unit <main> is equivalent to the following 3 FFs/Latches, which will be removed : <ball_vy_2> <ball_vy_3> <ball_vy_4> 
+INFO:Xst:2261 - The FF/Latch <game_delay_0> in Unit <main> is equivalent to the following FF/Latch, which will be removed : <x_0> 
+INFO:Xst:2261 - The FF/Latch <game_delay_1> in Unit <main> is equivalent to the following FF/Latch, which will be removed : <x_1> 
+
+Mapping all equations...
+Building and optimizing final netlist ...
+Found area constraint ratio of 100 (+ 5) on block main, actual ratio is 4.
+
+Final Macro Processing ...
+
+=========================================================================
+Final Register Report
+
+Macro Statistics
+# Registers                                            : 57
+ Flip-Flops                                            : 57
+
+=========================================================================
+
+=========================================================================
+*                           Partition Report                            *
+=========================================================================
+
+Partition Implementation Status
+-------------------------------
+
+  No Partitions were found in this design.
+
+-------------------------------
+
+=========================================================================
+*                            Design Summary                             *
+=========================================================================
+
+Top Level Output File Name         : main.ngc
+
+Primitive and Black Box Usage:
+------------------------------
+# BELS                             : 459
+#      GND                         : 1
+#      INV                         : 8
+#      LUT1                        : 53
+#      LUT2                        : 49
+#      LUT3                        : 23
+#      LUT4                        : 14
+#      LUT5                        : 19
+#      LUT6                        : 48
+#      MUXCY                       : 119
+#      MUXF7                       : 2
+#      VCC                         : 1
+#      XORCY                       : 122
+# FlipFlops/Latches                : 57
+#      FD                          : 18
+#      FDE                         : 2
+#      FDR                         : 27
+#      FDRE                        : 10
+# Clock Buffers                    : 1
+#      BUFGP                       : 1
+# IO Buffers                       : 5
+#      OBUF                        : 5
+# DSPs                             : 2
+#      DSP48A1                     : 2
+
+Device utilization summary:
+---------------------------
+
+Selected Device : 6slx9tqg144-3 
+
+
+Slice Logic Utilization: 
+ Number of Slice Registers:              57  out of  11440     0%  
+ Number of Slice LUTs:                  214  out of   5720     3%  
+    Number used as Logic:               214  out of   5720     3%  
+
+Slice Logic Distribution: 
+ Number of LUT Flip Flop pairs used:    264
+   Number with an unused Flip Flop:     207  out of    264    78%  
+   Number with an unused LUT:            50  out of    264    18%  
+   Number of fully used LUT-FF pairs:     7  out of    264     2%  
+   Number of unique control sets:         8
+
+IO Utilization: 
+ Number of IOs:                           9
+ Number of bonded IOBs:                   6  out of    102     5%  
+
+Specific Feature Utilization:
+ Number of BUFG/BUFGCTRLs:                1  out of     16     6%  
+ Number of DSP48A1s:                      2  out of     16    12%  
+
+---------------------------
+Partition Resource Summary:
+---------------------------
+
+  No Partitions were found in this design.
+
+---------------------------
+
+
+=========================================================================
+Timing Report
+
+NOTE: THESE TIMING NUMBERS ARE ONLY A SYNTHESIS ESTIMATE.
+      FOR ACCURATE TIMING INFORMATION PLEASE REFER TO THE TRACE REPORT
+      GENERATED AFTER PLACE-and-ROUTE.
+
+Clock Information:
+------------------
+-----------------------------------+------------------------+-------+
+Clock Signal                       | Clock buffer(FF name)  | Load  |
+-----------------------------------+------------------------+-------+
+CLOCK                              | BUFGP                  | 58    |
+-----------------------------------+------------------------+-------+
+
+Asynchronous Control Signals Information:
+----------------------------------------
+No asynchronous control signals found in this design
+
+Timing Summary:
+---------------
+Speed Grade: -3
+
+   Minimum period: 14.053ns (Maximum Frequency: 71.157MHz)
+   Minimum input arrival time before clock: No path found
+   Maximum output required time after clock: 3.668ns
+   Maximum combinational path delay: No path found
+
+Timing Details:
+---------------
+All values displayed in nanoseconds (ns)
+
+=========================================================================
+Timing constraint: Default period analysis for Clock 'CLOCK'
+  Clock period: 14.053ns (frequency: 71.157MHz)
+  Total number of paths / destination ports: 73034429 / 115
+-------------------------------------------------------------------------
+Delay:               14.053ns (Levels of Logic = 33)
+  Source:            ball_y_0 (FF)
+  Destination:       GREEN (FF)
+  Source Clock:      CLOCK rising
+  Destination Clock: CLOCK rising
+
+  Data Path: ball_y_0 to GREEN
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FD:C->Q              19   0.447   1.071  ball_y_0 (ball_y_0)
+     INV:I->O              1   0.206   0.000  Madd_ball_x[9]_ball_vx[4]_add_2_OUT_lut<0>1_INV_0 (Madd_ball_x[9]_ball_vx[4]_add_2_OUT_lut<0>)
+     MUXCY:S->O            1   0.172   0.000  Madd_ball_x[9]_ball_vx[4]_add_2_OUT_cy<0> (Madd_ball_x[9]_ball_vx[4]_add_2_OUT_cy<0>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_ball_x[9]_ball_vx[4]_add_2_OUT_cy<1> (Madd_ball_x[9]_ball_vx[4]_add_2_OUT_cy<1>)
+     XORCY:CI->O          13   0.180   1.037  Madd_ball_x[9]_ball_vx[4]_add_2_OUT_xor<2> (ball_x[9]_ball_vx[4]_add_2_OUT<2>)
+     LUT3:I1->O            2   0.203   0.616  Madd_n0129_cy<5>11_SW1 (N9)
+     MUXF7:S->O            1   0.148   0.580  GND_5_o_game_delay[19]_equal_2_o<19>4_SW0 (N45)
+     LUT6:I5->O            8   0.205   0.803  Madd_n0129_cy<5>11 (Madd_n0129_cy<5>)
+     LUT5:I4->O            8   0.205   0.802  Mxor_BUS_0004_ball_x[9]_XOR_35_o_xo<0>1 (BUS_0004_ball_x[9]_XOR_35_o)
+     DSP48A1:B10->M0       1   4.222   0.580  Mmult_GND_5_o_GND_5_o_MuLt_23_OUT1 (GND_5_o_GND_5_o_MuLt_23_OUT<0>)
+     LUT2:I1->O            1   0.205   0.000  Madd_n0132_lut<0> (Madd_n0132_lut<0>)
+     MUXCY:S->O            1   0.172   0.000  Madd_n0132_cy<0> (Madd_n0132_cy<0>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<1> (Madd_n0132_cy<1>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<2> (Madd_n0132_cy<2>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<3> (Madd_n0132_cy<3>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<4> (Madd_n0132_cy<4>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<5> (Madd_n0132_cy<5>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<6> (Madd_n0132_cy<6>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<7> (Madd_n0132_cy<7>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<8> (Madd_n0132_cy<8>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<9> (Madd_n0132_cy<9>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<10> (Madd_n0132_cy<10>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<11> (Madd_n0132_cy<11>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<12> (Madd_n0132_cy<12>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<13> (Madd_n0132_cy<13>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<14> (Madd_n0132_cy<14>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<15> (Madd_n0132_cy<15>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<16> (Madd_n0132_cy<16>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<17> (Madd_n0132_cy<17>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<18> (Madd_n0132_cy<18>)
+     MUXCY:CI->O           1   0.019   0.000  Madd_n0132_cy<19> (Madd_n0132_cy<19>)
+     XORCY:CI->O           1   0.180   0.924  Madd_n0132_xor<20> (n0132<20>)
+     LUT6:I1->O            1   0.203   0.000  Mcompar_GND_5_o_BUS_0006_LessThan_30_o_lut<4> (Mcompar_GND_5_o_BUS_0006_LessThan_30_o_lut<4>)
+     MUXCY:S->O            1   0.411   0.000  Mcompar_GND_5_o_BUS_0006_LessThan_30_o_cy<4> (GND_5_o_BUS_0006_LessThan_30_o)
+     FD:D                      0.102          GREEN
+    ----------------------------------------
+    Total                     14.053ns (7.641ns logic, 6.412ns route)
+                                       (54.4% logic, 45.6% route)
+
+=========================================================================
+Timing constraint: Default OFFSET OUT AFTER for Clock 'CLOCK'
+  Total number of paths / destination ports: 5 / 5
+-------------------------------------------------------------------------
+Offset:              3.668ns (Levels of Logic = 1)
+  Source:            GREEN (FF)
+  Destination:       RED (PAD)
+  Source Clock:      CLOCK rising
+
+  Data Path: GREEN to RED
+                                Gate     Net
+    Cell:in->out      fanout   Delay   Delay  Logical Name (Net Name)
+    ----------------------------------------  ------------
+     FD:C->Q               3   0.447   0.650  GREEN (BLUE_OBUF)
+     OBUF:I->O                 2.571          RED_OBUF (RED)
+    ----------------------------------------
+    Total                      3.668ns (3.018ns logic, 0.650ns route)
+                                       (82.3% logic, 17.7% route)
+
+=========================================================================
+
+Cross Clock Domains Report:
+--------------------------
+
+Clock to Setup on destination clock CLOCK
+---------------+---------+---------+---------+---------+
+               | Src:Rise| Src:Fall| Src:Rise| Src:Fall|
+Source Clock   |Dest:Rise|Dest:Rise|Dest:Fall|Dest:Fall|
+---------------+---------+---------+---------+---------+
+CLOCK          |   14.053|         |         |         |
+---------------+---------+---------+---------+---------+
+
+=========================================================================
+
+
+Total REAL time to Xst completion: 16.00 secs
+Total CPU time to Xst completion: 16.14 secs
+ 
+--> 
+
+Total memory usage is 4475796 kilobytes
+
+Number of errors   :    0 (   0 filtered)
+Number of warnings :   12 (   0 filtered)
+Number of infos    :    5 (   0 filtered)
+
