@@ -104,12 +104,12 @@ begin
 			box1 : box_entity;
 			box2 : box_entity) return boolean is
 		begin 
-			if box1.x >= box2.x and box1.x < box2.x + box2.width then
-				if box1.y >= box2.y and box1.y < box2.y + box2.height then
-					return True;
+			if (box1.x + box1.width >= box2.x and box1.x + box1.width <= box2.x + box2.width) or (box1.x >= box2.x and box1.x <= box2.x + box2.width) then
+				if (box1.y + box1.height >= box2.y and box1.y + box1.height <= box2.y + box2.height) or (box1.y + box1.height >= box2.y and box1.y + box1.height <= box2.y + box2.height) then
+					return true;
 				end if;
 			end if;
-			return False;
+			return false;
 		end function;
 				
 		impure function collide(
@@ -122,13 +122,22 @@ begin
 				if box1.x >= box2.x + box2.width or box1.x <= box2.x - box1.width then
 					collidee.vx := 0 - collidee.vx;
 				end if;
-				if box1.y >= box2.y + box2.height or box1.y <= box2.y - box1.width then
+				if box1.y >= box2.y + box2.height or box1.y <= box2.y - box1.height then
 					collidee.vy := 0 - collidee.vy;
 				end if;
 			end if;
 			return collidee;
 		end function;
 			
+		impure function to_integer (
+			s : std_logic ) return natural is
+		begin
+			if s = '1' then
+				return 1;
+			end if;
+			return 0;
+		end function;
+		
 		---- PROCEDURE ----	
 		
 		procedure set_color(
@@ -159,7 +168,7 @@ begin
 			ball : box_entity)is
 			variable radius : natural := ball.width/2;
 		begin 
-			if (x-(ball.x+left_border))*(x-(ball.x+left_border)) + (y-ball.y)*(y-ball.y) <= radius*radius then
+			if (x-(ball.x+left_border+radius))*(x-(ball.x+left_border+radius)) + (y-(ball.y+upper_border+radius))*(y-(ball.y+upper_border+radius)) <= radius*radius then
 				set_color((r=>'1',g=>'1',b=>'1'));
 			end if;
 		end procedure;
@@ -167,12 +176,12 @@ begin
 		---- VARIABLE ----
 			
 		variable player : box_entity := (
-			x => 0,
-			y => 0,
+			x => (screen_width/2)- 48,
+			y => ((2*screen_height)/3) + 40 ,
 			vx => 0 ,
 			vy => 0 ,
-			width => 96,
-			height => 8
+			width => 60,
+			height => 4
 		);
 			
 		variable brick : box_entity := (
@@ -221,10 +230,18 @@ begin
 			if game_delay = 100000 then
 				game_delay := 0;
 				---- update game ----
+				--player movement--
+				player.vx := 2*(to_integer(P_RIGHT)-to_integer(P_LEFT));
+				if player.x > 1 and player.x < screen_width-player.width then
+					player.x := player.x + player.vx;
+				end if;
 				
-				--move ball--
-				ball.x := ball.x + ball.vx;
-				ball.y := ball.y + ball.vy;
+				if player.x < 1 then
+					player.x := 2;
+				end if;
+				if player.x > screen_width-player.width then
+					player.x := screen_width-player.width-1;
+				end if;
 				
 				--collide with left and right wall--
 				if ball.x <= 1 or ball.x >= screen_width - ball.width then
@@ -234,8 +251,17 @@ begin
 				if ball.y <= 1 or ball.y >= screen_height - ball.height then
 					ball.vy := 0 - ball.vy;
 				end if;
+				--collide with player--
+				ball := collide(ball,player);
+				
+				--move ball--
+				ball.x := ball.x + ball.vx;
+				ball.y := ball.y + ball.vy;
+				
 			end if;
 			draw_ball(ball);
+			
+			draw_shape(player,(r=>'1',g=>'1',b=>'1'),false);
 			
 			-- Hsync and Vsync
 			if x > 0 and x <= X_SYNC_PULSE then
