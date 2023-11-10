@@ -54,30 +54,45 @@ entity main is
 end main;
 
 architecture Behavioral of main is
-	signal x : natural range 0 to 635 := 0;
-	signal y : natural range 0 to 525 := 0;
 
-	constant X_VISIBLE_AREA : natural := 508;
-	constant X_FRONT_PORCH : natural := 13;
-	constant X_SYNC_PULSE : natural := 76;
-	constant X_BACK_PORCH : natural := 38;
-	constant X_WHOLE_LINE : natural := 635;
+	---- VGA TIMING ----
+	signal x : natural range 0 to 656 := 0;
+	signal y : natural range 0 to 421 := 0;
 
-	constant Y_VISIBLE_AREA : natural := 480;
-	constant Y_FRONT_PORCH : natural := 10;
-	constant Y_SYNC_PULSE : natural := 2;
-	constant Y_BACK_PORCH : natural := 33;
-	constant Y_WHOLE_FRAME : natural := 525;
+	constant X_VISIBLE_AREA : natural := 520;
+	constant X_FRONT_PORCH : natural := 32;
+	constant X_SYNC_PULSE : natural := 72;
+	constant X_BACK_PORCH : natural := 32;
+	constant X_WHOLE_LINE : natural := 656;
 
-	constant right_border : natural := X_WHOLE_LINE - X_FRONT_PORCH + 2;
-	constant left_border : natural := X_SYNC_PULSE + X_BACK_PORCH + 1;
-	constant lower_border : natural := Y_WHOLE_FRAME - Y_FRONT_PORCH + 1;
-	constant upper_border : natural := Y_SYNC_PULSE + Y_BACK_PORCH + 1;
+	constant Y_VISIBLE_AREA : natural := 400;
+	constant Y_FRONT_PORCH : natural := 8;
+	constant Y_SYNC_PULSE : natural := 5;
+	constant Y_BACK_PORCH : natural := 8;
+	constant Y_WHOLE_FRAME : natural := 421;
+
+	constant right_border : natural := X_WHOLE_LINE - X_FRONT_PORCH;
+	constant left_border : natural := X_SYNC_PULSE + X_BACK_PORCH;
+	constant lower_border : natural := Y_WHOLE_FRAME - Y_FRONT_PORCH;
+	constant upper_border : natural := Y_SYNC_PULSE + Y_BACK_PORCH;
 	constant screen_width : natural := right_border - left_border;
 	constant screen_height : natural := lower_border - upper_border;
 	
-	---- CONSTANT ----
+	---- CLOCK AND DELAY GAME FPS ----
+	-- constant my_clock : natural := 20_000_000;
+	-- constant FPS : natural := my_clock / ;
+	constant delay_clock : natural := X_WHOLE_LINE * Y_WHOLE_FRAME;
+	signal game_delay : natural range 0 to delay_clock := 0;
+
+	variable score : natural range 0 to 130 :=0;
+	variable health : natural range 0 to 3 := 3;
+	variable common_port : natural range 0 to 3 := 0;
+	variable common_f_mod : natural range 0 to 200000:=200000;
+	variable game_start : boolean := false;
+	variable brick_counter : natural range 0 to brick_num := 0;
+	variable buzzer_time : natural := 0;
 	
+	---- CONSTANT ----
 	constant brick_row : natural := 6;
 	constant brick_column : natural := 5;
 	constant brick_num : natural := brick_row*brick_column;
@@ -102,50 +117,65 @@ architecture Behavioral of main is
 	type brick_life is record
 		life : natural range 0 to 2;
 	end record;
+
+	---- VARIABLE ----		
+	shared variable player : box_entity := (
+		x => (screen_width/2)- 48,
+		y => ((2*screen_height)/3) + 40 ,
+		vx => 0 ,
+		vy => 0 ,
+		width => 60,
+		height => 4
+	);
+			
+	shared variable brick : box_entity := (
+		x => 0,
+		y => 0,
+		vx => 0 ,
+		vy => 0 ,
+		width => 100,
+		height => 22
+	);
+			
+	constant default_brick_hp : brick_life := (life => 2);
+				
+	type record_of_brick is array (natural range 0 to brick_row*brick_column) of brick_life;
+		
+	shared variable brick_list : record_of_brick :=(
+		others => default_brick_hp);
+			
+	shared variable brick_for_display : box_entity := (
+		x => 0,
+		y => 0,
+		vx => 0 ,
+		vy => 0 ,
+		width => 100,
+		height => 22
+	);
+		
+	shared variable ball : box_entity := (
+		x => screen_width/2 - 4,
+		y => (2*screen_height)/3,
+		vx => -3 ,
+		vy => -3 ,
+		width => 8 ,
+		height => 8
+	);
 	
 begin
-	process(CLOCK)
-		---- FUNCTION ----
-	
-		impure function is_collide(
-			box1 : box_entity;
-			box2 : box_entity) return boolean is
-		begin 
-			if (box1.x + box1.width >= box2.x and box1.x + box1.width <= box2.x + box2.width) or (box1.x >= box2.x and box1.x <= box2.x + box2.width) then
-				if (box1.y + box1.height >= box2.y and box1.y + box1.height <= box2.y + box2.height) or (box1.y >= box2.y and box1.y <= box2.y + box2.height) then
-					return true;
-				end if;
-			end if;
-			return false;
-		end function;
-				
-		impure function collide(
-			box1 : box_entity;
-			box2 : box_entity) return box_entity is
-			variable collidee : box_entity;
-		begin
-			collidee := box1;
-			if is_collide(box1,box2) then
-				if box1.x >= box2.x + box2.width or box1.x <= box2.x - box1.width then
-					collidee.vx := 0 - collidee.vx;
-				end if;
-				if box1.y >= box2.y + box2.height or box1.y <= box2.y - box1.height then
-					collidee.vy := 0 - collidee.vy;
-				end if;
-			end if;
-			return collidee;
-		end function;
-			
-		impure function to_integer (
-			s : std_logic ) return natural is
-		begin
-			if s = '1' then
-				return 1;
-			end if;
-			return 0;
-		end function;
+	game_refresh : process(CLOCK) begin
 		
-		---- PROCEDURE ----	
+		if rising_edge(CLOCK) then
+			if (game_delay < 1_000_000) then
+				game_delay <= game_delay + 1;
+			else
+				game_delay <= 0;
+			end if;
+		
+		end if;
+	end process;
+	
+	drawing : process(CLOCK) is
 		
 		procedure set_color(
 			color_c : color) is
@@ -262,63 +292,9 @@ begin
 					COMMON <= "0111";
 				end if;
 			end procedure;
-
-		---- VARIABLE ----
-	
-		variable player : box_entity := (
-			x => (screen_width/2)- 48,
-			y => ((2*screen_height)/3) + 40 ,
-			vx => 0 ,
-			vy => 0 ,
-			width => 60,
-			height => 4
-		);
-			
-		variable brick : box_entity := (
-			x => 0,
-			y => 0,
-			vx => 0 ,
-			vy => 0 ,
-			width => 100,
-			height => 22
-		);
-			
-		constant default_brick_hp : brick_life :=(life => 2);
-				
-		type record_of_brick is array (natural range 0 to brick_row*brick_column) of brick_life;
-		variable brick_list : record_of_brick :=(
-			others => default_brick_hp);
-			
-		variable brick_for_display : box_entity := (
-			x => 0,
-			y => 0,
-			vx => 0 ,
-			vy => 0 ,
-			width => 100,
-			height => 22
-		);
 		
-		variable ball : box_entity := (
-			x => (screen_width/2) - 4,
-			y => (2*screen_height)/3,
-			vx => -1 ,
-			vy => -1 ,
-			width => 8 ,
-			height => 8
-		);
-		
-			variable game_delay : natural range 0 to 1000000 := 0;
-      	variable score : natural range 0 to 130 :=0;
-      	variable health : natural range 0 to 3 := 3;
-      	variable common_port : natural range 0 to 3 := 0;
-      	variable common_f_mod : natural range 0 to 200000:=200000;
-			variable game_start : boolean := false;
-			variable brick_counter : natural range 0 to brick_num := 0;
-			variable buzzer_time : natural := 0;
-		
-	begin 
-		
-		if CLOCK'event and CLOCK = '1' then
+		begin
+		if rising_edge(CLOCK) then
 			RED <= '0';
 			GREEN <= '0';
 			BLUE <= '0';
@@ -335,77 +311,14 @@ begin
 					end if;
             end if;
 			common_f_mod := common_f_mod + 1;
-			
-			game_delay := game_delay + 1;
-			if game_delay = 100000 then
-				--pause game--	
-				if START ='1' then
-					game_start := true;
-				else
-					game_start := false;
-				end if; 
-
-				game_delay := 0;
-				---- update game ----
-				--collide with left and right wall--
-				if ball.x <= 1 or ball.x >= screen_width - ball.width then
-					ball.vx := 0 - ball.vx;
-					buzzer_time := 10000000;
-				end if;
-				--collide with upper wall--
-				if ball.y <= 1 or ball.y >= screen_height - ball.height then
-					ball.vy := 0 - ball.vy;
-					buzzer_time := 10000000;
-				end if;
-				--collide with player--
-				ball := collide(ball,player);
-				buzzer_time := 10000000;
-				
-
-				--When game is not on pause -> do these thing--
-				if game_start then
-					--player movement--
-					player.vx := 2*(to_integer(P_RIGHT)-to_integer(P_LEFT));
-					if player.x > 1 and player.x < screen_width-player.width then
-						player.x := player.x + player.vx;
-					end if;
-				
-					if player.x < 1 then
-						player.x := 2;
-					end if;
-					if player.x > screen_width-player.width then
-						player.x := screen_width-player.width-1;
-					end if;
-						
-					--move ball--
-					ball.x := ball.x + ball.vx;
-					ball.y := ball.y + ball.vy;
-				end if;
-			end if;
+	
 			draw_ball(ball);
 			
 			draw_shape(player,(r=>'1',g=>'1',b=>'1'),false);
 
          	draw_hp(health,screen_width*3/4,4);
-
-			--collide with brick--
-			brick.x := (brick_counter mod brick_column)*(brick.width + 2);
-			brick.y := 32 + (brick_counter / brick_column)*(brick.height +2);
-			if brick_list(brick_counter).life > 0 and is_collide(ball,brick) then
-				buzzer_time := 10000000;
-				ball := collide(ball,brick);
-				brick_list(brick_counter).life:=  brick_list(brick_counter).life - 1;
-				if brick_list(brick_counter).life > 0 then
-					score := score + 1;
-				else
-					score := score + 3;
-				end if;
-				ball.x := ball.x + ball.vx;
-				ball.y := ball.y + ball.vy;
-			end if;
 			
           	-- draw brick--
-
 			for i in 0 to brick_row -1 loop
 				for j in 0 to brick_column - 1 loop
 					brick_for_display.x := (j mod brick_column)*(brick_for_display.width + 2);
@@ -418,6 +331,123 @@ begin
 					end if;
 				end loop;
 			end loop;
+		
+		end if;
+	end process;
+
+	game : process(CLOCK)
+		---- FUNCTION ----
+	
+		impure function is_collide(
+			box1 : box_entity;
+			box2 : box_entity) return boolean is
+		begin 
+			if (box1.x + box1.width > box2.x and box1.x < box2.x + box2.width) and
+				(box1.y + box1.height > box2.y and box1.y < box2.y + box2.height) then
+				return true;
+			else
+				return false;
+			end if;
+	
+		end function;
+				
+		impure function collide(
+			box1 : box_entity;
+			box2 : box_entity) return box_entity is
+			variable collidee : box_entity;
+		begin
+			collidee := box1;
+			if is_collide(box1,box2) then
+			
+				if box1.x >= box2.x + box2.width or box1.x <= box2.x - box1.width then
+					collidee.vx := -collidee.vx;
+				end if;
+				
+				if box1.y >= box2.y + box2.height or box1.y <= box2.y - box1.height then
+					collidee.vy := -collidee.vy;
+				end if;
+				
+			end if;
+			return collidee;
+			
+		end function;
+			
+		impure function to_integer (
+			s : std_logic ) return natural is
+		begin
+			if s = '1' then
+				return 1;
+			end if;
+			return 0;
+		end function;
+		
+	begin 
+		
+		if rising_edge(CLOCK) and (game_delay = delay_clock) then
+			---- Update Game ----
+			if START ='1' then
+				game_start := true;
+			else
+				game_start := false;
+			end if; 
+
+			--When game is not on pause -> do these thing--
+			if game_start then
+				-- Player Movement --
+				player.vx := 3*(to_integer(P_RIGHT)-to_integer(P_LEFT));
+				
+				if player.x <= 1 then
+					player.x := 2;
+
+				elsif player.x >= screen_width-player.width then
+					player.x := screen_width-player.width-1;
+
+				else
+					player.x := player.x + player.vx;
+
+				end if;
+					
+				--collide with left and right wall--
+				if ball.x <= 1 or ball.x >= screen_width - ball.width then
+					ball.vx := 0 - ball.vx;
+					buzzer_time := 10000000;
+				end if;
+
+				--collide with upper wall--
+				if ball.y <= 1 or ball.y >= screen_height - ball.height then
+					ball.vy := 0 - ball.vy;
+					buzzer_time := 10000000;
+				end if;
+
+				--move ball--
+				ball.x := ball.x + ball.vx;
+				ball.y := ball.y + ball.vy;
+
+				--collide with player--
+				ball := collide(ball,player);
+
+				--collide with brick--
+				brick.x := (brick_counter mod brick_column)*(brick.width + 2);
+				brick.y := 32 + (brick_counter / brick_column)*(brick.height +2);
+				if brick_list(brick_counter).life > 0 and is_collide(ball,brick) then
+					buzzer_time := 10000000;
+					ball := collide(ball,brick);
+					brick_list(brick_counter).life:=  brick_list(brick_counter).life - 1;
+					if brick_list(brick_counter).life > 0 then
+						score := score + 1;
+					else
+						score := score + 3;
+					end if;
+					ball.x := ball.x + ball.vx;
+					ball.y := ball.y + ball.vy;
+				end if;
+
+			end if;
+
+			brick_counter := brick_counter + 1;
+			if brick_counter = brick_num then
+				brick_counter := 0;
+			end if;
 
 			--Sound Buzzer--
 			if buzzer_time > 0 then
@@ -426,8 +456,14 @@ begin
 			else
 				BUZZER <= '0';
 			end if;
-            
-			-- Hsync and Vsync
+			
+		end if;
+	end process;
+	
+	vga_timing : process(CLOCK) begin
+
+		if rising_edge(CLOCK) then
+			-- Hsync and Vsync --
 			if x > 0 and x <= X_SYNC_PULSE then
 				HSYNC <= '0';
 			else
@@ -440,21 +476,19 @@ begin
 				VSYNC <= '1';
 			end if;
 
-			x <= x + 1;
-
-			if x = X_WHOLE_LINE then
-				y <= y + 1;
+			-- Frame and Line --
+			if (x < X_WHOLE_LINE) then
+				x <= x + 1;
+			else
 				x <= 0;
+				
+				if (y < Y_WHOLE_FRAME) then
+					y <= y + 1;
+				else
+					y <= 0;
+				end if;
 			end if;
 
-			if y = Y_WHOLE_FRAME then
-				y <= 0;
-			end if;
-			
-			brick_counter := brick_counter + 1;
-				if brick_counter = brick_num then
-					brick_counter := 0;
-				end if;
 		end if;
 	end process;
 
