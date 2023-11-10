@@ -45,18 +45,9 @@ entity main is
 			GREEN : out std_logic;
 			BLUE : out std_logic;
 			
-         A : out std_logic;
-         B : out std_logic;
-         C : out std_logic;
-         D : out std_logic;
-         E : out std_logic;
-         F : out std_logic;
-         G : out std_logic;
+         SEGMENT : out std_logic_vector (6 downto 0);
 			
-			C0 : out std_logic;
-			C1 : out std_logic;
-			C2 : out std_logic;
-			C3 : out std_logic;
+			COMMON : out std_logic_vector (3 downto 0); 
 
 			BUZZER : out std_logic
 		);
@@ -164,20 +155,41 @@ begin
 			BLUE <= color_c.b;
 		end procedure;
 
-        procedure set_seven(
+        procedure BCD_to_seven(
             num : natural) is 
             variable BCD : std_logic_vector(3 downto 0);
+			variable A,B,C,D,E,F,G : std_logic;
         begin
             BCD := std_logic_vector(to_unsigned(num,4));
-            A <= BCD(0) OR BCD(2) OR (BCD(1) AND BCD(3)) OR (NOT BCD(1) AND NOT BCD(3));
-            B <= (NOT BCD(1)) OR (NOT BCD(2) AND NOT BCD(3)) OR (BCD(2) AND BCD(3));
-            C <= BCD(1) OR NOT BCD(2) OR BCD(3);
-            D <= (NOT BCD(1) AND NOT BCD(3)) OR (BCD(2) AND NOT BCD(3)) OR (BCD(1) AND NOT BCD(2) AND BCD(3)) OR (NOT BCD(1) AND BCD(2)) OR BCD(0);
-            E <= (NOT BCD(1) AND NOT BCD(3)) OR (BCD(2) AND NOT BCD(3));
-            F <= BCD(0) OR (NOT BCD(2) AND NOT BCD(3)) OR (BCD(1) AND NOT BCD(2)) OR (BCD(1) AND NOT BCD(3));
-            G <= BCD(0) OR (BCD(1) AND NOT BCD(2)) OR ( NOT BCD(1) AND BCD(2)) OR (BCD(2) AND NOT BCD(3));
+            A := BCD(0) OR BCD(2) OR (BCD(1) AND BCD(3)) OR (NOT BCD(1) AND NOT BCD(3));
+            B := (NOT BCD(1)) OR (NOT BCD(2) AND NOT BCD(3)) OR (BCD(2) AND BCD(3));
+            C := BCD(1) OR NOT BCD(2) OR BCD(3);
+            D := (NOT BCD(1) AND NOT BCD(3)) OR (BCD(2) AND NOT BCD(3)) OR (BCD(1) AND NOT BCD(2) AND BCD(3)) OR (NOT BCD(1) AND BCD(2)) OR BCD(0);
+            E := (NOT BCD(1) AND NOT BCD(3)) OR (BCD(2) AND NOT BCD(3));
+            F := BCD(0) OR (NOT BCD(2) AND NOT BCD(3)) OR (BCD(1) AND NOT BCD(2)) OR (BCD(1) AND NOT BCD(3));
+            G := BCD(0) OR (BCD(1) AND NOT BCD(2)) OR ( NOT BCD(1) AND BCD(2)) OR (BCD(2) AND NOT BCD(3));
+
+			segment <= A&B&C&D&E&F&G;
         end procedure;
 
+		procedure select_digit(
+			place : natural;
+			num : natural) is 
+			variable digit : natural;
+		begin
+			if place = 0 then
+				digit := num mod 10;
+				BCD_to_seven(digit);
+			elsif place = 1 then
+				digit := num mod 100;
+				BCD_to_seven(digit/10);
+			elsif place = 2 then
+				digit := num mod 1000;
+				BCD_to_seven(digit/100);
+			else
+				BCD_to_seven(digit*0);
+			end if;
+		end procedure;
 			
 		procedure draw_shape(
 			shape : box_entity;
@@ -229,29 +241,25 @@ begin
             temp_x :=  temp_x + 12 +2;
             draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 12,height => 16),(r=>'1',g=>'1',b=>'1'),false);
             draw_shape((x => temp_x + 4,y => cord_y+4,vx => 0,vy => 0,width => 8,height => 3),(r=>'0',g=>'0',b=>'0'),false);
-            draw_shape((x => temp_x + 4,y => cord_y+7,vx => 0,vy => 0,width => 8,height => 3),(r=>'0',g=>'0',b=>'0'),false);
+            draw_shape((x => temp_x + 4,y => cord_y+9,vx => 0,vy => 0,width => 8,height => 3),(r=>'0',g=>'0',b=>'0'),false);
 
             temp_x := temp_x + 16;
             for i in 0 to hp loop
-                draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 6,height => 16),(r=>'1',g=>'0',b=>'0'),false);
+                draw_shape((x => temp_x+(i*4),y => cord_y,vx => 0,vy => 0,width => 6,height => 16),(r=>'1',g=>'0',b=>'0'),false);
             end loop;
         end procedure;
 
 			procedure set_common(
 				digit_num : natural) is
 			begin
-				C0 <= '1';
-				C1 <= '1';
-				C2 <= '1';
-				C3 <= '1';
 				if digit_num = 0 then
-					C0 <= '0';
+					COMMON <= "1110";
 				elsif digit_num = 1 then
-					C1 <= '0';
+					COMMON <= "1101";
 				elsif digit_num = 2 then
-					C2 <= '0';
+					COMMON <= "1011";
 				else
-					C3 <= '0';
+					COMMON <= "0111";
 				end if;
 			end procedure;
 
@@ -299,15 +307,14 @@ begin
 			height => 8
 		);
 		
-		variable game_delay : natural range 0 to 1000000 := 0;
+			variable game_delay : natural range 0 to 1000000 := 0;
       	variable score : natural range 0 to 130 :=0;
       	variable health : natural range 0 to 3 := 3;
-      	variable common : natural range 0 to 3 := 3;
-    	variable temp_score : natural := 0;
-      	variable c_count : natural range 0 to 100000:=0;
-      	variable digit_score : natural := 0;
-		variable game_start : boolean := false;
-		variable brick_counter : natural range 0 to brick_num := 0;
+      	variable common_port : natural range 0 to 3 := 0;
+      	variable common_f_mod : natural range 0 to 200000:=200000;
+			variable game_start : boolean := false;
+			variable brick_counter : natural range 0 to brick_num := 0;
+			variable buzzer_time : natural := 0;
 		
 	begin 
 		
@@ -315,7 +322,19 @@ begin
 			RED <= '0';
 			GREEN <= '0';
 			BLUE <= '0';
-			set_common(common);
+
+			--switch common--
+            if common_f_mod = 200000 then
+                set_common(common_port);
+					select_digit(common_port,score);
+					common_f_mod := 0;
+
+					common_port := common_port +1 ;
+					if common_port > 3 then
+						common_port := 0;
+					end if;
+            end if;
+			common_f_mod := common_f_mod + 1;
 			
 			game_delay := game_delay + 1;
 			if game_delay = 100000 then
@@ -331,13 +350,16 @@ begin
 				--collide with left and right wall--
 				if ball.x <= 1 or ball.x >= screen_width - ball.width then
 					ball.vx := 0 - ball.vx;
+					buzzer_time := 10000000;
 				end if;
 				--collide with upper wall--
 				if ball.y <= 1 or ball.y >= screen_height - ball.height then
 					ball.vy := 0 - ball.vy;
+					buzzer_time := 10000000;
 				end if;
 				--collide with player--
 				ball := collide(ball,player);
+				buzzer_time := 10000000;
 				
 
 				--When game is not on pause -> do these thing--
@@ -364,12 +386,13 @@ begin
 			
 			draw_shape(player,(r=>'1',g=>'1',b=>'1'),false);
 
-         draw_hp(health,screen_width*3/4,4);
+         	draw_hp(health,screen_width*3/4,4);
 
 			--collide with brick--
 			brick.x := (brick_counter mod brick_column)*(brick.width + 2);
 			brick.y := 32 + (brick_counter / brick_column)*(brick.height +2);
 			if brick_list(brick_counter).life > 0 and is_collide(ball,brick) then
+				buzzer_time := 10000000;
 				ball := collide(ball,brick);
 				brick_list(brick_counter).life:=  brick_list(brick_counter).life - 1;
 				if brick_list(brick_counter).life > 0 then
@@ -395,27 +418,14 @@ begin
 					end if;
 				end loop;
 			end loop;
-			
-				
-            -- 7 segment --
-            temp_score := score;
-            c_count := c_count + 1;
-            if c_count = 100000 then
-                c_count := 0;
-                if common = 0 then
-                    temp_score := (temp_score mod 10);
-                    digit_score := temp_score;
-                elsif common = 1 then
-                    temp_score := (temp_score mod 100);
-                    digit_score := temp_score/10;
-                elsif common = 2 then
-                    digit_score := temp_score/100;
-                elsif common = 3 then
-                    digit_score := 0;
-                end if;
-                set_seven(digit_score);
-            end if;
 
+			--Sound Buzzer--
+			if buzzer_time > 0 then
+				buzzer_time := buzzer_time -1;
+				BUZZER <= '1';
+			else
+				BUZZER <= '0';
+			end if;
             
 			-- Hsync and Vsync
 			if x > 0 and x <= X_SYNC_PULSE then
@@ -436,12 +446,6 @@ begin
 				y <= y + 1;
 				x <= 0;
 			end if;
-
-        common := common +1 ;
-
-        if common > 3 then
-            common := 0;
-        end if;
 
 			if y = Y_WHOLE_FRAME then
 				y <= 0;
