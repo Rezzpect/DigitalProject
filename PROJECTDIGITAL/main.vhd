@@ -96,14 +96,14 @@ architecture Behavioral of main is
 
     constant ball_size : natural := 8;
     constant ball_sx : natural := (screen_width / 2) - (ball_size / 2);
-    constant ball_sy : natural := (2 * screen_height) / 3;
+    constant ball_sy : natural := (5 * screen_height) / 6;
     constant ball_speed : integer := 1;
 
     constant player_w : natural := 60;
     constant player_h : natural := 4;
     constant player_sx : natural := (screen_width / 2) - (player_w / 2);
-    constant player_sy : natural := ((5 * screen_height) / 6);
-	
+    constant player_sy : natural := ((9 * screen_height) / 10);
+
     ---- SIGANL ----
 
     signal game_start : boolean := false;
@@ -186,10 +186,6 @@ architecture Behavioral of main is
         height => ball_size
     );
 	
-	type brick_life is record
-	    life : natural range 0 to 2;
-	end record;
-	
 	---- COLOR ----
 	constant color_grey : more_color := (
 		color1 => ( r => '1', g => '1', b => '1' ),
@@ -247,50 +243,6 @@ architecture Behavioral of main is
 			6 => color_blue,
 			7 => color_purple
 		);
-
-    ---- VARIABLE ----
-
-    shared variable player : box_entity := (
-        x => player_sx,
-        y => player_sy,
-        vx => 0 ,
-        vy => 0 ,
-        width => player_w,
-        height => player_h
-    );
-        
-    shared variable brick : box_entity := (
-        x => 0,
-        y => 0,
-        vx => 0 ,
-        vy => 0 ,
-        width => brick_w,
-        height => brick_h
-    );
-        
-    constant default_brick_hp : brick_life :=(life => 2);
-            
-    type record_of_brick is array ( natural range 0 to brick_num ) of brick_life;
-
-    shared variable brick_list : record_of_brick := ( others => default_brick_hp);
-        
-    shared variable brick_for_display : box_entity := (
-        x => 0,
-        y => 0,
-        vx => 0 ,
-        vy => 0 ,
-        width => brick_w,
-        height => brick_h
-    );
-    
-    shared variable ball : box_entity := (
-        x => ball_sx,
-        y => ball_sy,
-        vx => -ball_speed ,
-        vy => -ball_speed ,
-        width => ball_size ,
-        height => ball_size
-    );
 	
 begin
 	process(CLOCK)
@@ -480,7 +432,7 @@ begin
 			variable radius : natural := ball.width/2;
 		begin 
 			if (x-(ball.x+left_border+radius))*(x-(ball.x+left_border+radius)) + (y-(ball.y+upper_border+radius))*(y-(ball.y+upper_border+radius)) <= radius*radius then
-				set_color((r=>'1',g=>'1',b=>'1'));
+				set_color(color_white.color1);
 			end if;
 		end procedure;
 
@@ -521,13 +473,82 @@ begin
 					end if;
             end loop;
         end procedure;
+
+		procedure draw_start(
+            cord_x : natural;
+            cord_y : natural) is
+			variable temp_x :natural;
+			variable temp_hp :natural;
+        begin 
+			temp_x := cord_x;
+            --S--
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 22,height => 26),color_white,false);
+            draw_shape((x => temp_x + 8,y => cord_y + 5,vx => 0,vy => 0,width => 14,height => 5),color_black,false);
+			draw_shape((x => temp_x,y => cord_y + 16,vx => 0,vy => 0,width => 14,height => 5),color_black,false);
+            --T--
+            temp_x := temp_x + 22 +2;
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 22,height => 26),color_white,false);
+            draw_shape((x => temp_x,y => cord_y+5,vx => 0,vy => 0,width => 7,height => 21),color_black,false);
+            draw_shape((x => temp_x + 15,y => cord_y+5,vx => 0,vy => 0,width => 7,height => 21),color_black,false);
+            --A--
+            temp_x := temp_x + 22 +2;
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 22,height => 26),color_white,false);
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 7,height => 5),color_black,false);
+            draw_shape((x => temp_x+15,y => cord_y,vx => 0,vy => 0,width => 7,height => 5),color_black,false);
+			draw_shape((x => temp_x+7,y => cord_y+5,vx => 0,vy => 0,width => 8,height => 5),color_black,false);
+			draw_shape((x => temp_x+7,y => cord_y+16,vx => 0,vy => 0,width => 8,height => 10),color_black,false);
+            --R--
+            temp_x :=  temp_x + 22 +2;
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 22,height => 26),color_white,false);
+            draw_shape((x => temp_x+7,y => cord_y+5,vx => 0,vy => 0,width => 8,height => 5),color_black,false);
+			draw_shape((x => temp_x+15,y => cord_y+11,vx => 0,vy => 0,width => 7,height => 5),color_black,false);
+			draw_shape((x => temp_x+7,y => cord_y+16,vx => 0,vy => 0,width => 8,height => 10),color_black,false);
+			--T--
+            temp_x := temp_x + 22 +2;
+            draw_shape((x =>  temp_x,y => cord_y,vx => 0,vy => 0,width => 22,height => 26),color_white,false);
+            draw_shape((x => temp_x,y => cord_y+5,vx => 0,vy => 0,width => 7,height => 21),color_black,false);
+            draw_shape((x => temp_x + 15,y => cord_y+5,vx => 0,vy => 0,width => 7,height => 21),color_black,false);
+
+        end procedure;
+
+		procedure draw_end(
+            cord_x : natural;
+            cord_y : natural) is
+			variable temp_x :natural;
+			variable temp_hp :natural;
+        begin 
+			temp_x := cord_x;
+            --E--
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 22,height => 26),color_white,false);
+            draw_shape((x => temp_x + 8,y => cord_y + 5,vx => 0,vy => 0,width => 14,height => 5),color_black,false);
+			draw_shape((x => temp_x + 8,y => cord_y + 16,vx => 0,vy => 0,width => 14,height => 5),color_black,false);
+            --N--
+            temp_x := temp_x + 22 +2;
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 5,height => 26),color_white,false);
+            draw_shape((x => temp_x+5,y => cord_y+5,vx => 0,vy => 0,width => 4,height => 5),color_white,false);
+			draw_shape((x => temp_x+9,y => cord_y+10,vx => 0,vy => 0,width => 4,height => 6),color_white,false);
+			draw_shape((x => temp_x+13,y => cord_y+16,vx => 0,vy => 0,width => 4,height => 5),color_white,false);
+			draw_shape((x => temp_x+17,y => cord_y,vx => 0,vy => 0,width => 5,height => 26),color_white,false);
+            --D--
+            temp_x := temp_x + 22 +2;
+            draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 22,height => 26),color_white,false);
+            draw_shape((x => temp_x+15,y => cord_y,vx => 0,vy => 0,width => 7,height => 5),color_black,false);
+            draw_shape((x => temp_x+15,y => cord_y+21,vx => 0,vy => 0,width => 7,height => 5),color_black,false);
+			draw_shape((x => temp_x+7,y => cord_y+5,vx => 0,vy => 0,width => 7,height => 16),color_black,false);
+
+        end procedure;
     
     begin
 
         if rising_edge(CLOCK) then
-				RED <= '0';
-				GREEN <= '0';
-				BLUE <= '0';
+			RED <= '0';
+			GREEN <= '0';
+			BLUE <= '0';
+
+			if (not game_start) then
+				draw_start(abs(player_sx - ((118-player_w)/2)) ,ball_sy - 26 - 10);
+				--draw_end(abs(player_sx - ((70-player_w)/2)) ,ball_sy - 26 - 10);
+			end if;
 
             draw_ball(ball);
 
