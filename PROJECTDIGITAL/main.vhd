@@ -97,7 +97,7 @@ architecture Behavioral of main is
     constant ball_size : natural := 8;
     constant ball_sx : natural := (screen_width / 2) - (ball_size / 2);
     constant ball_sy : natural := (5 * screen_height) / 6;
-    constant ball_speed : integer := 1;
+    constant ball_speed : integer := 2;
 
     constant player_w : natural := 60;
     constant player_h : natural := 4;
@@ -107,7 +107,9 @@ architecture Behavioral of main is
     ---- SIGANL ----
 
     signal game_start : boolean := false;
-    signal start_delay : natural range 0 to start_dt := 0;
+	signal game_running : boolean := false;
+	signal game_end : boolean := false;
+    signal start_delay : natural range 0 to start_dt:= 0;
 	signal game_delay : natural range 0 to game_dt := 0;
 	signal score : natural range 0 to max_score := 0;
 	signal health : natural range 0 to max_health := max_health;
@@ -115,6 +117,7 @@ architecture Behavioral of main is
     signal common_port : natural range 0 to 3 := 0;
 	signal common_f_mod : natural range 0 to common_mod := common_mod;
 	signal buzzer_time : natural := 0;
+	signal end_delay : natural range 0 to game_dt := 0;
 	
 	---- RECORD ----
 	
@@ -245,9 +248,11 @@ architecture Behavioral of main is
 		);
 	
 begin
-	process(CLOCK)
+
+	game : process(CLOCK)
 		
 		---- FUNCTION ----
+
 		impure function is_collide(
 			box1 : box_entity;
 			box2 : box_entity) return boolean is
@@ -296,12 +301,24 @@ begin
 	begin 
 		
 		if rising_edge(CLOCK) then
-				
-			--pause game--	
+
+			-- Game Signal --	
+			
 			if START = '1' then
 				start_delay <= start_delay + 1;
 				if start_delay = start_dt then
-					game_start <= not game_start;
+					if (not game_running) and (not game_end) and (end_delay = 0) then
+						game_start <= true;
+						game_running <= true;
+					elsif game_end then
+						brick_list := (others => default_brick_hp);
+						health <= 3;
+						score <= 0;
+						game_end <= false;
+					else
+						game_start <= not game_start;
+					end if;
+					
 				end if;
 			else
 				start_delay <= 0;
@@ -309,7 +326,7 @@ begin
 
             -- When game is not on pause -> do these thing --
 				
-			if (game_delay = game_dt) and game_start then
+			if (game_delay = game_dt) and game_running and game_start then
                 -- player movement --
                 player.vx := (2 * ball_speed) * (to_integer(P_RIGHT) - to_integer(P_LEFT));
                 player.x := player.x + player.vx;
@@ -352,13 +369,14 @@ begin
                 buzzer_time <= 10_000_000;
 
 				health <= health - 1;
-                if health = 0 then
-                  health <= 3;
-						score <= 0;
-						brick_list := (others => default_brick_hp);
-                end if;
 
             end if;	
+
+			if health = 0 then
+				game_start <= false;
+				game_running <= false;
+				game_end <= true;
+			  end if;
 
             -- collide with player --
 			ball := collide(ball,player);
@@ -545,14 +563,19 @@ begin
 			GREEN <= '0';
 			BLUE <= '0';
 
-			if (not game_start) then
+			if (not game_running) and (not game_end) then
 				draw_start(abs(player_sx - ((118-player_w)/2)) ,ball_sy - 26 - 10);
-				--draw_end(abs(player_sx - ((70-player_w)/2)) ,ball_sy - 26 - 10);
+			elsif game_end then
+				draw_end(abs(player_sx - ((70-player_w)/2)) ,ball_sy - 26 - 10);
+			elsif (not game_start) then
+				draw_start(abs(player_sx - ((118-player_w)/2)) ,ball_sy - 26 - 10);
 			end if;
 
-            draw_ball(ball);
+			if not game_end then
+            	draw_ball(ball);
 
-			draw_shape(player,color_white,false);
+				draw_shape(player,color_white,false);
+			end if;
 
          	draw_hp(health,screen_width*3/4,4);
 
@@ -677,6 +700,14 @@ begin
 				game_delay <= game_delay + 1;
 			else
 				game_delay <= 0;
+			end if;
+			
+			if (game_end) then
+				end_delay <= game_dt;
+			elsif (end_delay > 0) then
+				end_delay <= end_delay - 1;
+			else
+				end_delay <= 0;
 			end if;
 		end if;
 	end process;
