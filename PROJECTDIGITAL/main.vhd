@@ -103,7 +103,6 @@ architecture Behavioral of main is
     constant player_h : natural := 4;
     constant player_sx : natural := (screen_width / 2) - (player_w / 2);
     constant player_sy : natural := ((5 * screen_height) / 6);
-	 
 	
     ---- SIGANL ----
 
@@ -138,6 +137,54 @@ architecture Behavioral of main is
 		color1 : color;
 		color2 : color;
 	end record;
+
+	type brick_life is record
+	    life : natural range 0 to 2;
+	end record;
+
+    ---- VARIABLE ----
+
+    shared variable player : box_entity := (
+        x => player_sx,
+        y => player_sy,
+        vx => 0 ,
+        vy => 0 ,
+        width => player_w,
+        height => player_h
+    );
+        
+    shared variable brick : box_entity := (
+        x => 0,
+        y => 0,
+        vx => 0 ,
+        vy => 0 ,
+        width => brick_w,
+        height => brick_h
+    );
+        
+    constant default_brick_hp : brick_life :=(life => 2);
+            
+    type record_of_brick is array ( natural range 0 to brick_num ) of brick_life;
+
+    shared variable brick_list : record_of_brick := ( others => default_brick_hp);
+        
+    shared variable brick_for_display : box_entity := (
+        x => 0,
+        y => 0,
+        vx => 0 ,
+        vy => 0 ,
+        width => brick_w,
+        height => brick_h
+    );
+    
+    shared variable ball : box_entity := (
+        x => ball_sx,
+        y => ball_sy,
+        vx => -ball_speed ,
+        vy => -ball_speed ,
+        width => ball_size ,
+        height => ball_size
+    );
 	
 	type brick_life is record
 	    life : natural range 0 to 2;
@@ -351,12 +398,14 @@ begin
                 player.x := player_sx;
                 player.y := player_sy;
                 buzzer_time <= 10_000_000;
-					 health <= health - 1;
+
+				health <= health - 1;
                 if health = 0 then
                   health <= 3;
 						score <= 0;
 						brick_list := (others => default_brick_hp);
                 end if;
+
             end if;	
 
             -- collide with player --
@@ -422,6 +471,7 @@ begin
 						set_color(color_c.color2);
 					end if;
 				end if;
+
 			end if;
 		end procedure;
 			
@@ -441,8 +491,9 @@ begin
 			variable temp_x :natural;
 			variable temp_hp :natural;
         begin 
-				temp_x := cord_x;
-				draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 12,height => 16),color_white,false);
+			--L--
+			temp_x := cord_x;
+			draw_shape((x => temp_x,y => cord_y,vx => 0,vy => 0,width => 12,height => 16),color_white,false);
             draw_shape((x => temp_x + 4,y => cord_y,vx => 0,vy => 0,width => 8,height => 12),color_black,false);
             --I--
             temp_x := temp_x + 12 +2;
@@ -461,8 +512,8 @@ begin
             draw_shape((x => temp_x + 4,y => cord_y+4,vx => 0,vy => 0,width => 8,height => 3),color_black,false);
             draw_shape((x => temp_x + 4,y => cord_y+9,vx => 0,vy => 0,width => 8,height => 3),color_black,false);
 				
-				temp_x := temp_x + 16;
-				temp_hp := hp;
+			temp_x := temp_x + 16;
+			temp_hp := hp;
             for i in 0 to 2 loop
 					if temp_hp > 0 then
 						draw_shape((x => temp_x+(i*10),y => cord_y,vx => 0,vy => 0,width => 6,height => 16),color_red,false);
