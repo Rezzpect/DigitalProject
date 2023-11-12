@@ -98,6 +98,8 @@ architecture Behavioral of main is
     constant ball_sx : natural := (screen_width / 2) - (ball_size / 2);
     constant ball_sy : natural := (5 * screen_height) / 6;
     constant ball_speed : integer := 2;
+	constant ball_speed_min : integer := 1;
+	constant ball_speed_max : integer := 3;
 
     constant player_w : natural := 60;
     constant player_h : natural := 4;
@@ -120,6 +122,7 @@ architecture Behavioral of main is
 	signal common_f_mod : natural range 0 to common_mod := common_mod;
 	signal buzzer_time : natural range 0 to 10_000_000 := 0;
 	signal end_delay : natural range 0 to game_dt := 0;
+	signal rand_counter : natural range 0 to my_clock := 0;
 	
 	---- RECORD ----
 	
@@ -248,6 +251,15 @@ architecture Behavioral of main is
 			6 => color_blue,
 			7 => color_purple
 		);
+
+	impure function to_integer (
+		s : std_logic ) return natural is
+	begin
+		if s = '1' then
+			return 1;
+		end if;
+		return 0;
+	end function;
 	
 begin
 
@@ -275,6 +287,30 @@ begin
 	game : process(CLOCK)
 		
 		---- FUNCTION ----
+
+		impure function next_ball_speed (
+			eball : box_entity;
+			clock : natural ) return box_entity is
+			variable new_ball : box_entity;
+			constant dx : natural := eball.vx / abs(eball.vx);
+			constant dy : natural := eball.vy / abs(eball.vy);
+			constant new_vx : natural := clock mod (ball_speed_max+1);
+			constant new_vy : natural := (clock mod ((2*ball_speed_max)+1)) mod (ball_speed_max+1);
+		begin
+			new_ball := eball;
+			if new_vx = 0 then
+				new_ball.vx := ball_speed_min * dx;
+			else
+				new_ball.vx := new_vx * dx;
+			end if;
+
+			if new_vy = 0 then
+				new_ball.vy := ball_speed * dy;
+			else
+				new_ball.vy := new_vy * dy;
+			end if;
+			return new_ball;
+		end function;
 
 		impure function is_collide(
 			box1 : box_entity;
@@ -307,18 +343,10 @@ begin
 				if abs(box2.x - (box1.x+box1.width)) < tolerance and box1.vx > 0 then
 					collidee.vx := -collidee.vx;
 				end if;
+				collidee := next_ball_speed(collidee, rand_counter);
                 buzzer_time <= 2_000_000;
 			end if;
 			return collidee;
-		end function;
-			
-		impure function to_integer (
-			s : std_logic ) return natural is
-		begin
-			if s = '1' then
-				return 1;
-			end if;
-			return 0;
 		end function;	
 		
 	begin 
@@ -348,7 +376,7 @@ begin
 				
 			if (game_delay = game_dt) and game_running and game_start then
                 -- player movement --
-                player.vx := (2 * ball_speed) * (to_integer(P_RIGHT) - to_integer(P_LEFT));
+                player.vx := ((3 * ball_speed_max) / 2) * (to_integer(P_RIGHT) - to_integer(P_LEFT));
                 player.x := player.x + player.vx;
 
                 -- player collide with left wall --
@@ -369,12 +397,18 @@ begin
 
             -- ball collide with left and right wall --
             if ball.x <= 1 or ball.x >= screen_width - ball.width then
+				if ball.x <= 1 then
+					ball.x := 2;
+				else
+					ball.x := screen_width - ball.width - 1;
+				end if;
                 ball.vx := -ball.vx;
                 buzzer_time <= 2_000_000;
             end if;
 
             -- ball collide with upper wall --
             if ball.y <= 1 then
+				ball.y := 2;
                 ball.vy := -ball.vy;
                 buzzer_time <= 2_000_000;
             end if;
@@ -384,6 +418,8 @@ begin
                 game_start <= false;
                 ball.x := ball_sx;
                 ball.y := ball_sy;
+				ball.vx := -ball_speed;
+				ball.vy := -ball_speed;
                 player.x := player_sx;
                 player.y := player_sy;
                 buzzer_time <= 10_000_000;
@@ -422,6 +458,8 @@ begin
 			if score = max_score and not game_win then
 				ball.x := ball_sx;
 				ball.y := ball_sy;
+				ball.vx := -ball_speed;
+				ball.vy := -ball_speed;
 				player.x := player_sx;
 				player.y := player_sy;
 				buzzer_time <= 10_000_000;
@@ -809,6 +847,16 @@ begin
 			else
 				end_delay <= 0;
 			end if;
+
+			-- Random Speed Counter --
+			if (rand_counter < my_clock) and (rand_counter > 0) then
+				rand_counter <= rand_counter + 1 + (to_integer(P_RIGHT) - to_integer(P_LEFT));
+			elsif (rand_counter = my_clock) then
+				rand_counter <= 0;
+			else
+				rand_counter <= 1;
+			end if;
+
 		end if;
 	end process;
 
