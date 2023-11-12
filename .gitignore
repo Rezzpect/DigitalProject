@@ -4,6 +4,8 @@
 **/planAhead_run_*
 **/xlnx_auto_0_xdb
 **/xst
+**/ipcore_dir
+**/isim
 *.map
 *.html
 *.log
@@ -39,3 +41,12 @@
 *.ngm
 *.mrp
 *.xwbt
+*.xmsgs
+*.in
+*.out
+*.xreport
+*.cmd
+*.v
+*.jhd
+*.sch
+*.ini
