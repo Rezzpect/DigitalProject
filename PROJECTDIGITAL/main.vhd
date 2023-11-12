@@ -118,7 +118,7 @@ architecture Behavioral of main is
 	signal brick_counter : natural range 0 to brick_num := 0;
     signal common_port : natural range 0 to 3 := 0;
 	signal common_f_mod : natural range 0 to common_mod := common_mod;
-	signal buzzer_time : natural := 0;
+	signal buzzer_time : natural range 0 to 10_000_000 := 0;
 	signal end_delay : natural range 0 to game_dt := 0;
 	
 	---- RECORD ----
@@ -307,7 +307,7 @@ begin
 				if abs(box2.x - (box1.x+box1.width)) < tolerance and box1.vx > 0 then
 					collidee.vx := -collidee.vx;
 				end if;
-                buzzer_time <= 5_000_000;
+                buzzer_time <= 2_000_000;
 			end if;
 			return collidee;
 		end function;
@@ -370,13 +370,13 @@ begin
             -- ball collide with left and right wall --
             if ball.x <= 1 or ball.x >= screen_width - ball.width then
                 ball.vx := -ball.vx;
-                buzzer_time <= 5_000_000;
+                buzzer_time <= 2_000_000;
             end if;
 
             -- ball collide with upper wall --
             if ball.y <= 1 then
                 ball.vy := -ball.vy;
-                buzzer_time <= 5_000_000;
+                buzzer_time <= 2_000_000;
             end if;
             
             -- ball collide with bottom wall --
